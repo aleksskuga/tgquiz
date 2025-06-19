@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+
+# Env & secrets
+.env
+tokens.json
+
+# OS
+.DS_Store
+
+# Railway
+*.sqlite3
+
+# Docker
+*.log 

@@ -1,0 +1,56 @@
+description: "Инструкция по этапам разработки Telegram Quiz Bot MVP" alwaysApply: false
+Implementation Plan — Telegram Quiz Bot MVP
+У каждой задачи есть статус. Начинай работу с первого невыполненного TODO.
+Cursor будет отмечать выполнение задач автоматически (см. инструкцию в конце).
+
+✅ Milestone 1 — Инициализация проекта, окружение и структура
+TODO: Создать корневую директорию и базовую структуру проекта
+TODO: Добавить .gitignore (включая .env, pycache/, venv/, *.pyc, tokens.json)
+TODO: Создать и заполнить .env файл (с TELEGRAM_TOKEN и OPENAI_API_KEY)
+TODO: Установить и зафиксировать зависимости в requirements.txt:
+python-telegram-bot
+openai
+aiohttp
+python-dotenv
+apscheduler
+TODO: Создать базовые файлы: bot.py, config.py, stepik.py, quiz_generator.py, scheduler.py
+TODO: Добавить python-dotenv в config.py для загрузки .env
+TODO: Настроить Procfile для Railway: worker: python bot.py
+TODO: Создать README.md с кратким описанием проекта
+✅ Milestone 2 — Реализация функциональности MVP (бот + Stepik API)
+TODO: Реализовать start-хендлер: запрос токена, сохранение токена в JSON
+TODO: Реализовать отправку квиза через OpenAI API
+TODO: Реализовать асинхронную интеграцию со Stepik API: получение текущего урока
+TODO: Генерировать квиз-сообщение с Inline кнопками (варианты ответа)
+TODO: Обработать обратный ответ пользователя (callback_query)
+TODO: Добавить тестовую команду /quiz для ручной отправки квиза
+TODO: Создать периодический планировщик quiz-отправок раз в 2 часа (APScheduler)
+✅ Milestone 3 — Контейнеризация (Docker) и деплой в Railway
+TODO: Создать Dockerfile на базе python:3.12-slim
+COPY pyproject.toml ./
+COPY src/ ./src/
+RUN pip install --no-cache-dir -e .
+TODO: Создать .dockerignore (исключить .env, tokens.json, pycache)
+TODO: Проверить запуск бота внутри контейнера без asyncio.run()
+TODO: Использовать application.run_polling() напрямую (без asyncio.run)
+TODO: Добавить кнопочное меню запуска на Railway (Procfile → worker)
+TODO: Проверить переменные окружения в Railway
+✅ Milestone 4 — Завершение и доп. улучшения
+TODO: Добавить режим DEBUG: логировать вызовы send_quiz_job и ошибки
+TODO: Протестировать корректность генерации и ответа на квиз
+TODO: Протестировать на фейковом Stepik token и на валидном
+TODO: Подготовить версию v1.1 (перемещение к следующему уроку)
+TODO: Собрать резервный requirements-dev.txt (black, isort, flake8)
+TODO: Прогнать форматирование и линтинг всех исходников
+TODO: Описать Known Issues в README
+✅ Acceptance Checklist
+ Бот принимает Stepik токен и хранит его
+ Каждые 2 часа отправляется квиз-сообщение
+ Генерация вопросов работает через OpenAI
+ Ответ пользователя обрабатывается корректно (правильно / неправильно)
+ Всё запускается локально и в Railway
+ Dockerfile и .dockerignore созданы
+ Настроен линтинг/форматирование
+ README содержит инструкции по запуску
+✅ @Cursor: После завершения задачи поменяй её статус на DONE и добавь краткий маркер «// done by Cursor» с описанием, что именно сделано.
+

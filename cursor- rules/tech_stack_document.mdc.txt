@@ -1,0 +1,18 @@
+Tech Stack Document — Telegram Quiz Bot for Stepik
+Layer	Name & Version	Purpose	Documentation Link
+Runtime	Python 3.11+	Основной язык разработки проекта и запуска кода	https://www.python.org/doc/
+Bot SDK	python-telegram-bot 20.7	SDK для взаимодействия с Telegram Bot API	https://docs.python-telegram-bot.org/en/stable/
+OpenAI SDK	openai 1.30.1	Обращение к GPT-4.0/GPT-4.1-mini для генерации квизов	https://pypi.org/project/openai/
+HTTP Client	aiohttp 3.9.3	Асинхронные запросы к API Stepik	https://docs.aiohttp.org/en/stable/
+Env Config	python-dotenv 1.0.1	Загрузка переменных окружения из .env	https://pypi.org/project/python-dotenv/
+Scheduler	APScheduler 3.10.4	Запланированный запуск задач — генерация квизов каждые 2 часа	https://apscheduler.readthedocs.io/en/stable/
+Database (MVP)	JSON (tokens.json)	Хранение токенов пользователей в виде файла (простое MVP-хранилище)	- (используется встроенный json)
+Deployment (Hosting)	Railway	Облачная платформа для деплоя и запуска Python-приложения	https://railway.app/docs
+Formatter / Linter	black 24.3.0	Форматирование Python-кода	https://black.readthedocs.io/en/stable/
+isort 5.13.2	Сортировка импортов	https://pycqa.github.io/isort/
+flake8 7.0.0	Анализ стиля и поиск ошибок	https://flake8.pycqa.org/en/latest/
+Примечание:
+
+Вместо полноценной базы данных на этапе MVP используется простой JSON-файл tokens.json.
+Railway использует Procfile и requirements.txt для запуска worker-процесса.
+В дальнейшем (v1.1+) можно заменить хранение токенов на SQLite или Redis.
