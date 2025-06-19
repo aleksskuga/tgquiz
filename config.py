@@ -6,6 +6,7 @@ import json
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TOKENS_FILE = "tokens.json"
+DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes")
 
 def load_tokens():
     if not os.path.exists(TOKENS_FILE):
