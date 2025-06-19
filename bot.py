@@ -6,7 +6,7 @@ from telegram import Update, ForceReply, InlineKeyboardButton, InlineKeyboardMar
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, ConversationHandler
 from config import TELEGRAM_TOKEN, load_tokens, save_tokens, get_user_settings, set_user_settings
 from dotenv import load_dotenv
-from stepik import get_current_lesson, get_token_by_password
+from stepik import get_current_lesson, get_token_by_password, mark_step_completed
 from quiz_generator import generate_quiz, parse_quiz
 import asyncio
 from scheduler import start_scheduler
@@ -58,6 +58,7 @@ async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
     quiz_text = await generate_quiz(lesson['title'], lesson['topic'], lesson['text'])
     question, options, correct = parse_quiz(quiz_text)
     context.user_data['correct'] = correct
+    context.user_data['step_id'] = lesson.get('step_id') or lesson.get('id')
     keyboard = [[InlineKeyboardButton(f"{opt[0]}) {opt[1]}", callback_data=opt[0])] for opt in options]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(question, reply_markup=reply_markup)
@@ -67,10 +68,21 @@ async def answer_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     user_answer = query.data
     correct = context.user_data.get('correct')
+    user_id = get_user_id(update)
+    token = tokens.get(user_id)
+    step_id = context.user_data.get('step_id')
     if user_answer == correct:
-        await query.edit_message_text("✅ Верно! Поздравляем!")
+        # Отметить шаг завершённым
+        if token and step_id:
+            ok, err = await mark_step_completed(token, step_id)
+            if ok:
+                await query.edit_message_text("✅ Верно! Переходим к следующему уроку.")
+            else:
+                await query.edit_message_text(f"✅ Верно! Но не удалось отметить урок завершённым: {err}")
+        else:
+            await query.edit_message_text("✅ Верно! (step_id не найден)")
     else:
-        await query.edit_message_text(f"❌ Неверно. Правильный ответ: {correct}")
+        await query.edit_message_text(f"❌ Неверно. Правильный ответ: {correct}\nЭтот урок будет повторён.")
 
 async def period(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [

@@ -51,3 +51,22 @@ async def get_token_by_password(email, password, client_id, client_secret):
             if resp.status != 200:
                 return None, f"Ошибка авторизации: {resp.status}"
             return (await resp.json()).get("access_token"), None 
+
+async def mark_step_completed(token: str, step_id: int):
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    url = f"{STEPIC_API_URL}/attempts"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        # Создаём попытку
+        data = {"step": step_id}
+        async with session.post(url, json=data) as resp:
+            if resp.status != 201:
+                return False, f"Ошибка создания попытки: {resp.status}"
+            attempt = (await resp.json())["attempts"][0]
+            attempt_id = attempt["id"]
+        # Отправляем пустой ответ (или любой валидный)
+        url_sub = f"{STEPIC_API_URL}/submissions"
+        data_sub = {"attempt": attempt_id, "reply": {}}
+        async with session.post(url_sub, json=data_sub) as resp:
+            if resp.status != 201:
+                return False, f"Ошибка отправки ответа: {resp.status}"
+        return True, None 
