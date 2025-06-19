@@ -6,7 +6,7 @@ from telegram import Update, ForceReply, InlineKeyboardButton, InlineKeyboardMar
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, ConversationHandler
 from config import TELEGRAM_TOKEN, load_tokens, save_tokens, get_user_settings, set_user_settings
 from dotenv import load_dotenv
-from stepik import get_current_lesson
+from stepik import get_current_lesson, get_token_by_password
 from quiz_generator import generate_quiz, parse_quiz
 import asyncio
 from scheduler import start_scheduler
@@ -96,6 +96,19 @@ async def pause(update: Update, context: ContextTypes.DEFAULT_TYPE):
     set_user_settings(user_id, paused_until=tomorrow.isoformat())
     await update.message.reply_text("Автоотправка квизов отключена до следующего дня.")
 
+async def get_stepik_token(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Использовать только для теста! Не хранить реальные данные в продакшене.
+    if len(context.args) != 4:
+        await update.message.reply_text("Использование: /get_stepik_token email password client_id client_secret")
+        return
+    email, password, client_id, client_secret = context.args
+    await update.message.reply_text("Пробую получить токен Stepik...")
+    token, err = await get_token_by_password(email, password, client_id, client_secret)
+    if err:
+        await update.message.reply_text(f"Ошибка: {err}")
+    else:
+        await update.message.reply_text(f"Ваш access_token: {token}")
+
 def main():
     application = Application.builder().token(TELEGRAM_TOKEN).build()
 
@@ -111,6 +124,7 @@ def main():
     application.add_handler(CommandHandler("quiz", quiz))
     application.add_handler(CommandHandler("period", period))
     application.add_handler(CommandHandler("pause", pause))
+    application.add_handler(CommandHandler("get_stepik_token", get_stepik_token))
     application.add_handler(MessageHandler(filters.StatusUpdate.CALLBACK_QUERY, answer_callback))
     application.add_handler(MessageHandler(filters.StatusUpdate.CALLBACK_QUERY, period_callback))
 

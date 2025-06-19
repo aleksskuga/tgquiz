@@ -1,6 +1,7 @@
 # stepik.py
 # Работа с API платформы Stepik 
 import aiohttp
+import base64
 
 STEPIC_API_URL = "https://stepik.org/api"
 
@@ -32,3 +33,21 @@ async def get_current_lesson(token: str):
             "topic": step.get("block", {}).get("name", ""),
             "text": step.get("block", {}).get("text", ""),
         }, None 
+
+async def get_token_by_password(email, password, client_id, client_secret):
+    url = f"{STEPIC_API_URL}/oauth2/token/"
+    data = {
+        "grant_type": "password",
+        "username": email,
+        "password": password,
+    }
+    auth = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, data=data, headers=headers) as resp:
+            if resp.status != 200:
+                return None, f"Ошибка авторизации: {resp.status}"
+            return (await resp.json()).get("access_token"), None 
